@@ -1,0 +1,185 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=latex 2019.11.25)  25 NOV 2019 09:40
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./images.tex
+(./images.tex
+LaTeX2e <2017-04-15>
+Babel <3.18> and hyphenation patterns for 3 language(s) loaded.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+) (/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty
+Package: makeidx 2014/09/29 v1.0m Standard LaTeX package
+)
+\@indexfile=\write3
+\openout3 = `images.idx'.
+
+Writing index file images.idx
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: dvips.def on input line 225.
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/dvips.def
+File: dvips.def 2017/06/20 v3.1d Graphics/color driver for dvips
+)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+) (/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2015/03/17 v1.2c Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def
+File: latin1.def 2015/03/17 v1.2c Input encoding file
+))
+\sizebox=\box26
+\lthtmlwrite=\write4
+(./images.aux)
+\openout1 = `images.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 136.
+LaTeX Font Info:    ... okay on input line 136.
+
+latex2htmlLength hsize=349.0pt
+
+latex2htmlLength vsize=629.40024pt
+
+latex2htmlLength hoffset=0.0pt
+
+latex2htmlLength voffset=0.0pt
+
+latex2htmlLength topmargin=0.0pt
+
+latex2htmlLength topskip=0.00003pt
+
+latex2htmlLength headheight=0.0pt
+
+latex2htmlLength headsep=0.0pt
+
+latex2htmlLength parskip=0.0pt plus 1.0pt
+
+latex2htmlLength oddsidemargin=54.0pt
+
+latex2htmlLength evensidemargin=54.0pt
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 163.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 163.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 163.
+l2hSize :tex2html_wrap_inline625:7.07185pt::0.0pt::16.97246pt.
+[1
+
+
+
+]
+l2hSize :tex2html_wrap_inline1635:9.62923pt::9.62923pt::75.85588pt.
+[2
+
+
+]
+l2hSize :tex2html_wrap_inline1637:8.7125pt::8.7125pt::25.48924pt.
+[3
+
+
+]
+l2hSize :tex2html_wrap_inline1639:7.57185pt::7.57185pt::35.22252pt.
+[4
+
+
+]
+l2hSize :tex2html_wrap_inline1641:7.57185pt::7.57185pt::25.95047pt.
+[5
+
+
+]
+l2hSize :tex2html_wrap_inline1643:7.07185pt::0.0pt::18.36406pt.
+[6
+
+
+]
+l2hSize :tex2html_wrap_inline1647:7.57185pt::7.57185pt::25.7629pt.
+[7
+
+
+]
+l2hSize :tex2html_wrap_inline1649:7.07185pt::0.0pt::17.58084pt.
+[8
+
+
+]
+l2hSize :tex2html_wrap_inline1651:7.57185pt::7.57185pt::26.70583pt.
+[9
+
+
+]
+l2hSize :tex2html_wrap_inline1653:7.57185pt::7.57185pt::26.70583pt.
+[10
+
+
+]
+l2hSize :tex2html_wrap_inline1655:7.57185pt::7.57185pt::17.58084pt.
+[11
+
+
+]
+l2hSize :tex2html_wrap_inline1657:7.07185pt::0.0pt::23.40556pt.
+[12
+
+
+]
+l2hSize :tex2html_wrap_inline1659:9.12923pt::0.0pt::11.55582pt.
+[13
+
+
+]
+l2hSize :tex2html_wrap_inline3038:7.57185pt::7.57185pt::9.06422pt.
+[14
+
+
+] (./images.aux) ) 
+Here is how much of TeX's memory you used:
+ 955 strings out of 494924
+ 11262 string characters out of 6180767
+ 61840 words of memory out of 5000000
+ 4326 multiletter control sequences out of 15000+600000
+ 6379 words of font info for 23 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 23i,5n,35p,149b,147s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on images.dvi (14 pages, 3276 bytes).

@@ -1,0 +1,2018 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2018 (Released Feb 1, 2018) -->
+<HTML>
+<HEAD>
+<TITLE>FORM version 4.2.1 Developer's reference manual</TITLE>
+<META NAME="description" CONTENT="FORM version 4.2.1 Developer's reference manual">
+<META NAME="keywords" CONTENT="devref">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2018">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="devref.css">
+
+</HEAD>
+
+<BODY >
+
+<P>
+
+<H1 ALIGN="CENTER"><BIG CLASS="XHUGE">FORM 
+<BR><BIG CLASS="XLARGE">version 4.2.1 
+<BR><BIG CLASS="HUGE">Developer's reference manual</BIG></BIG></BIG></H1>
+<DIV CLASS="author_info">
+
+<P ALIGN="CENTER"><STRONG>J.A.M.Vermaseren et al.</STRONG></P>
+<P ALIGN="CENTER"><STRONG>25 June 2017</STRONG></P>
+</DIV>
+
+<P>
+
+ <SMALL CLASS="TINY">. </SMALL>
+
+
+<BR>
+
+<H2><A NAME="SECTION00010000000000000000">
+Contents</A>
+</H2>
+<!--Table of Contents-->
+
+<UL CLASS="TofC">
+<LI><A NAME="tex2html18"
+  HREF="#SECTION00020000000000000000">Initial remarks</A>
+<LI><A NAME="tex2html19"
+  HREF="#SECTION00030000000000000000">Overview of the source code</A>
+<UL>
+<LI><A NAME="tex2html20"
+  HREF="#SECTION00031000000000000000">The header files</A>
+<LI><A NAME="tex2html21"
+  HREF="#SECTION00032000000000000000">The source files</A>
+<LI><A NAME="tex2html22"
+  HREF="#SECTION00033000000000000000">The global structs</A>
+<LI><A NAME="tex2html23"
+  HREF="#SECTION00034000000000000000">Configuration</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html24"
+  HREF="#SECTION00040000000000000000">Discussion of a typical FORM run</A>
+<LI><A NAME="tex2html25"
+  HREF="#SECTION00050000000000000000">Specific topics</A>
+<UL>
+<LI><A NAME="tex2html26"
+  HREF="#SECTION00051000000000000000">Pattern matching</A>
+<LI><A NAME="tex2html27"
+  HREF="#SECTION00052000000000000000">The problem of dummy indices</A>
+<LI><A NAME="tex2html28"
+  HREF="#SECTION00053000000000000000">Values of indices (and vectors)</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html29"
+  HREF="#SECTION00060000000000000000">The test suite</A>
+<LI><A NAME="tex2html30"
+  HREF="#SECTION00070000000000000000">CVS</A>
+<UL>
+<LI><A NAME="tex2html31"
+  HREF="#SECTION00071000000000000000">Some useful CVS idioms</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html32"
+  HREF="#SECTION00080000000000000000">Index</A>
+</UL>
+<!--End of Table of Contents-->
+ <SMALL CLASS="TINY">. </SMALL>
+
+<P>
+
+<H1><A NAME="SECTION00020000000000000000">
+Initial remarks</A>
+</H1>
+
+<P>
+This document is intended for people who are interested in understanding how FORM works internally,
+how to find and correct bugs in the source code, and how to extend FORM by implementing new
+features.
+
+<P>
+It is assumed, that the source code is available, either as a package or directly via CVS access to
+the FORM repository. The FORM package contains many files and several subdirectories. The actual
+sources of FORM, TFORM, and P<SMALL>AR</SMALL>FORM are all in the directory <TT>sources</TT> (see section
+<A HREF="#sec:source">2</A> for an overview).  Documentation can be found in the directory <TT>doc</TT>. The testing
+suite is contained in the directory <TT>check</TT>.
+
+<P>
+
+<H1><A NAME="SECTION00030000000000000000"></A>
+<A NAME="sec:source"></A>
+<BR>
+Overview of the source code
+</H1>
+
+<P>
+Here we will discuss general aspects of the source code, i.e. the files contained in the directory
+<TT>sources</TT>.
+
+<P>
+FORM is written in ANSI C. The code is split up in header files <TT>*.h</TT> and source files
+<TT>*.c</TT>. Files usually don't come in pairs of a header file with the declarations and a source file
+with the definitions, but instead most declarations are collected in a few headers. The declaration
+of function headers is done in <TT>declare.h</TT> for example. The most prominent exceptions are
+<TT>parallel.h</TT> and <TT>minos.h</TT>.
+
+<P>
+Each file usually contains many hundred lines of code. To make the files more accessible, the code
+is structure by so-called folds. If you use the editor STedi, the code will be visualized
+correctly. If you use a vi-compatible editor, it is advisable to activate folds and set the
+foldmarkers to <TT>set foldmarker=#[,#]</TT>
+
+<P>
+
+<H2><A NAME="SECTION00031000000000000000">
+The header files</A>
+</H2>
+
+<P>
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.png"
+ ALT="$\quad\;\:$"></SPAN><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>declare.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Contains the declarations of all publicly relevant functions as
+well as of commonly used macros like <TT>NCOPY</TT> or <TT>LOCK</TT>.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>form3.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Global settings and macro definitions like word size or version
+number. It includes several different system
+header files depending on the computer's architecture.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>fsizes.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Defines macros that determine the size and layout of FORM's internal data like the
+sizes of the work buffers etc.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>ftypes.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Contains preprocessor definitions of the codes used in the internal representation of
+parsed input and expressions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>fwin.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Special settings for the Windows operating system.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>inivar.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Contains the initialization of various global data like the
+FORM function names or the character table for parsing. It also defines the global
+struct <TT>A</TT>, and for TFORM the struct pointer <TT>AB</TT>.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>minos.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Dedicated header to the minos.c source file.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>parallel.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Dedicated header to the parallel.c source file.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>portsignals.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Preprocessor definition of the OS signals FORM can deal with.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>structs.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Defines the structs that contain almost all of
+FORM's internal data.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>unix.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Special definitions for Unix-like operating systems.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>variable.h</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Some convinience preprocessor definitions to ease the access to
+global variables, like <TT>cbuf</TT> or <TT>AC</TT>.</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<H2><A NAME="SECTION00032000000000000000">
+The source files</A>
+</H2>
+
+<P>
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.png"
+ ALT="$\quad\;\:$"></SPAN><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>argument.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the <TT>argument</TT> and <TT>term</TT>
+	FORM statements.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>bugtool.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Low-level debugging code.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>checkpoint.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to test for checkpoint conditions, to create
+snapshots, and to recover from snapshot data.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>comexpr.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Functions the compiler calls to translate a statement that
+involves an algebraic expression, e.g. <TT>Local</TT> or <TT>Id</TT>.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>compcomm.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Functions the compiler calls to translate a statement that
+neither involves an algebraic expression nor is a variable declaration.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>compiler.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Main compiler code.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>compress.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for GZIP (de-)compression in sort files.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>comtool.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Utility functions for the compiler, like <TT>AddRHS</TT>.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>dollar.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code dealing with dollar variables.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>execute.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the execution phase of a module. Also, code dealing
+with brackets in FORM expressions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>extcmd.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>External command code.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>factor.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Simple factorizing code for dollar variables and expressions.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>findpat.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Pattern matching for symbols and dot products.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>function.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Pattern matching for functions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>if.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the <TT>if</TT> statement.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>index.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for bracket indexing.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>lus.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to find loops in index contractions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>message.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Text output functions, like <TT>MesPrint</TT> or <TT>PrintTerm</TT>.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>minos.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>The minos database.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>module.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for module execution and the <TT>moduleoption</TT>, <TT>exec</TT> and
+<TT>pipe</TT> statements.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>mpi2.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>MPI2 code for P<SMALL>AR</SMALL>FORM.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>mpi.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>MPI1 code for P<SMALL>AR</SMALL>FORM.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>names.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Name administration code to deal with the declaration of
+FORM variables.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>normal.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to normalize terms, i.e. bring them to standard form.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>opera.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for doing traces, contractions, and tensor conversions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>optim.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to optimize FORTRAN or C output.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>parallel.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>P<SMALL>AR</SMALL>FORM (MPI-independant code).</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>pattern.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>General pattern matching and substitution.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>poly.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for polynomial arithmetic (experimental).</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>polynito.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for polynomial arithmetic and manipulation.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>pre.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>The preprocessor.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>proces.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>The central processor.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>ratio.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Partial fractioning and summing functions.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>reken.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for numerics.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>reshuf.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Utility functions for the renumbering of dummy indices, and for
+statements like <TT>shuffle</TT>, <TT>stuffle</TT>, <TT>multiply</TT>.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>sch.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the textual output of terms and expressions.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>setfile.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to deal with setup parameters and setup files.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>smart.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code doing optimized pattern matching.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>sort.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the sorting of expressions.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>startup.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Start of program (<TT>main()</TT>). Code for the startup and shutdown
+phase of FORM.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>store.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code to read from disk or write to disk terms and expressions.
+Also, store file and save file management.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>symmetr.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Pattern matching for functions with symmetric properties.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>tables.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for the tablebases.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>threads.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>TFORM. Almost all of the TFORM specific code.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>token.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>The tokenizer.</TD>
+</TR>
+</TABLE>
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>tools.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Utility functions to deal with streams, files, strings, memory
+management, and timers.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>unixfile.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Wrapper functions for UNIX file I/O functions.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><TT>wildcard.c</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Code for wildcards.</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<H2><A NAME="SECTION00033000000000000000">
+The global structs</A>
+</H2>
+
+<P>
+FORM keeps its data organized in several global structs. These structs are defined in
+<TT>structs.h</TT> (in the fold <TT>A</TT>) and come by the names <TT>M_const</TT>, <TT>P_const</TT>, ....  The
+various global variables are grouped in these structs according to their r&#244;le in the
+program. The fold commentaries give details on this. <TT>M_const</TT> is for global settings at startup
+and <TT>.clear</TT>, for example.
+
+<P>
+The various structs are collected in the struct <TT>AllGlobals</TT>. In the case of sequential FORM,
+this struct is made into the type <TT>ALLGLOBALS</TT>, and in <TT>inivar.h</TT>, the global variable <TT>A</TT> is
+defined having this type. This global variable <TT>A</TT> holds all the data defined in the various
+structs. In <TT>variable.h</TT> several macros are defined to simplify (and more importantly unify) the
+access to the struct elements. For example, one can access the variable <TT>S0</TT> in <TT>T_const</TT> as
+<TT>AT.S0</TT>.
+
+<P>
+With the multi-threaded version TFORM things are a little bit more complicated, because some data
+needs to be replicated and made private for each thread. This kind of data is situated in the
+structs <TT>N_const</TT>, <TT>R_const</TT>, and <TT>T_const</TT>. For TFORM, these structs are collected in the
+struct <TT>AllPrivates</TT> (which makes up the type <TT>ALLPRIVATES</TT>), all other structs go into the
+<TT>AllGlobals</TT> struct. The global variable <TT>A</TT> now contains only the non-thread specific data. For
+each thread a <TT>AllPrivates</TT> struct is dynamically allocated and the global pointer variable (in
+<TT>inivar.h</TT>) <TT>AB</TT> holds their references. <TT>AB</TT> is an array of pointers where the index
+corresponds to the thread number. The macros defined in <TT>variable.h</TT> to access the global struct
+data are made such that they transparently work with the <TT>AB</TT> array. The user doesn't need to care
+about these details and can still write as in the previous example <TT>AT.S0</TT>. This keeps the code
+of sequential FORM and multi-threaded TFORM uniform. 
+
+<P>
+The only small price one has to pay to make this uniform access by macros possible is to make sure
+every function in FORM knows in which thread it is executed. The <TT>AN</TT>, <TT>AR</TT>, and <TT>AT</TT> macros
+use a variable <TT>B</TT>, which is set to the correct entry in <TT>AB</TT> by one of two ways. First, a
+function can use the macro <TT>GETIDENTITY</TT> (defined in <TT>declare.h</TT>).  In TFORM&nbsp; it calls
+<TT>WhoAmI()</TT> to get the thread number, declares the pointer <TT>B</TT>, and sets <TT>B</TT> to point to the
+correct entry in <TT>AB</TT>. In sequential FORM this macro is empty. The second way is to get the
+variable <TT>B</TT> as a parameter from the caller. For this method the macros <TT>PHEAD</TT>, <TT>PHEAD0</TT>,
+<TT>BHEAD</TT>, and <TT>BHEAD0</TT> exist (defined in <TT>ftypes.h</TT>), which can be used in the parameter list of
+the function declarations. The variants with a zero differ only by not including a trailing comma,
+which is not allowed if no other parameters are following in the declaration. Usually, <TT>PHEAD</TT> is
+used in the declaration (it includes type information), while <TT>BHEAD</TT> appears in the calling of
+functions. Which way to set <TT>B</TT> is chosen, depends on the use of the function. The <TT>PHEAD</TT> method
+is faster than <TT>GETIDENTITY</TT> and should be preferred in functions that are called very often. On
+the other hand, <TT>GETIDENTITY</TT> is more general as it does not rely on every caller to supply <TT>B</TT>. 
+
+<P>
+The elements of the structs are of various types. Some types are just simple macros mapping directly
+to built-in types (see <TT>form3.h</TT>) like <TT>WORD</TT>, others are names for structs that are defined
+(mostly) in <TT>structs.h</TT>. Often, variables of the same type are grouped together to help the
+compiler with alignment. Also, a lot of structs use macros like <TT>PADLONG</TT> (<TT>unix.h</TT> or
+<TT>fwin.h</TT>) to pad a struct such that its size is a multiple of a built-in type size. This again
+is to help with the data alignment.
+
+<P>
+Most struct elements have comments that explain their use. These commentaries often include 
+the information where this element was once located in the old version 2 of FORM (it is the pair
+of parentheses with or without a capital letter inside). Pointers come in two flavors: Some
+pointers reference a dynamically allocated piece of memory, basically owning this memory. Others
+just reference another variable or point into allocated memory. The first kind is usually marked
+with <TT>[D]</TT> for easy identification. These pointers often need to be treated particularly, e.g. during the
+snapshot creation, when recovering, or when shutting down.
+
+<P>
+During start up (<TT>main()</TT>), all the memory of these global structs, i.e. their element variables, is
+initialized to zero.
+
+<P>
+
+<H2><A NAME="SECTION00034000000000000000">
+Configuration</A>
+</H2>
+
+<P>
+The source code evaluates several preprocessor definitions that can be defined by the user.
+According to these definitions the executable can be configured in different ways. As a default, the
+sequential version of FORM is generated. But if, for example, the preprocessor variable
+<TT>WITHPTHREADS</TT> is defined, the multi-threaded version TFORM will be compiled. These preprocessor
+variables can be set when calling the compiler, like
+
+<P>
+<TT>gcc -c -DWITHPTHREADS -o pre.o pre.c</TT>
+
+<P>
+The most commonly considered preprocessor variables are: 
+<BR><TT>WITHPTHREADS</TT>, <TT>PARALLEL</TT>,
+<TT>WITHZLIB</TT>, <TT>WITHGMP</TT>, <TT>WITHSORTBOTS</TT>, <TT>LINUX</TT>, 
+<BR><TT>OPTERON</TT>, <TT>DEBUGGING</TT>. The first two
+change the flavor of the executable: TFORM or P<SMALL>AR</SMALL>FORM. The next two configure whether FORM uses
+the zlib library for compression during sorts or the GMP library for arbitrary precision arithmetics.
+The next decides whether FORM uses dedicated sorting  threads in TFORM. <TT>LINUX</TT>
+specifies that the executable is to be compiled for a Linux or UNIX compliant operating system. An
+alternative here would be to set the variable <TT>ALPHA</TT> or <TT>MYWIN64</TT> instead, but these builds are
+less common. <TT>OPTERON</TT> has to be set if one compiles a 64bit executable. <TT>DEBUGGING</TT> enables
+some features for a non-release debugging version of the executable (commonly named <TT>vorm</TT> or
+<TT>tvorm</TT>).
+
+<P>
+When using the autoconf setup, the settings concerning the operating system, architecture (32/64bit), and
+flavor of the executable are automatically done right. Additional settings like <TT>WITHZLIB</TT> can be
+changed by manually editing the file <TT>config.h</TT>, which is included in <TT>form3.h</TT>.
+
+<P>
+Version numbers and production date can also be set, but then one either needs to edit the
+appropriate lines in <TT>form3.h</TT> when in a manual compiling setup, or by editing <TT>configure.ac</TT> in
+an autoconf setup.
+
+<P>
+
+<H1><A NAME="SECTION00040000000000000000">
+Discussion of a typical FORM run</A>
+</H1>
+
+<P>
+We discuss in the following what is happening inside FORM when it executes a
+given program. The discussion focuses more on the interplay between the various
+parts of FORM and on key concepts of the internal data representation than on
+in-depth details of the code. For the latter, the reader is referred to section
+<A HREF="#sec:indepth">4</A>. This section should for better comprehension be read with the
+referenced FORM source files opened aside.
+
+<P>
+We consider the following exemplary FORM program <TT>test.frm</TT> (which we run
+with the command "<TT>form test</TT>"):
+
+<P>
+<PRE>
+ 1      #define N "3"
+ 2      
+ 3      Symbol x, y, z;
+ 4      
+ 5      L	f = (x+y)^2 - (x+z)^`N';
+ 6      L	g = f - x;
+ 7      
+ 8      Brackets x;
+ 9      Print;
+10      .sort
+11      
+12      #do i=2,3
+13      Id	x?^`i' = x;
+14      #enddo
+15      
+16      Print +s;
+17      .end
+</PRE>
+
+<P>
+The entry function <TT>main()</TT> is in <TT>startup.c</TT>. It does various
+initializations before it calls the preprocessor <TT>PreProcessor()</TT>, which
+actually deals with the FORM program. The code shows some typical features:
+Preprocessor macros are frequently used to select code specific to certain
+configurations. The two most common macros can be seen here: <TT>WITHPTHREADS</TT>
+for a TFORM executable and <TT>PARALLEL</TT> for a P<SMALL>AR</SMALL>FORM executable. Macros are
+used to access the global data contained in the variable <TT>A</TT>, like 
+<TT>AX.timeout</TT> for example. The code uses (usually) own functions instead of
+standard functions provided by the C library for common tasks. Examples in
+<TT>main()</TT> are <TT>strDup1</TT> or <TT>MesPrint</TT> (replacing <TT>printf()</TT>). Another
+very often used function is <TT>Malloc1()</TT> replacing <TT>malloc()</TT>. The reasons
+are better portability and the inclusion of special features.  <TT>Malloc1()</TT> for
+example makes a custom memory debugger available while <TT>MesPrint()</TT> knows
+among other things how to print encoded expressions from the internal buffers.
+
+<P>
+The initializations in <TT>main()</TT> are done in several steps. Some like the
+initialization of <TT>A</TT> with zeros is done directly, most others are done by
+calls to dedicated functions. The initializations are split up according to the
+type of objects involved and the available information at this point. The
+command line parameters passed to FORM (none in our example run) are treated
+in the function <TT>DoTail()</TT>. After that, files are opened and also parsed for
+addtional settings. Then, as all settings are known, the large part of the
+internal data is allocated and initialized. Finally, recovery settings are
+checked, threads are started if necessary, timers are started, and variable
+initializations that might need to be repeated later (e.g. clear modules) are
+done in <TT>IniVars()</TT>.
+
+<P>
+The call to <TT>OpenInput()</TT> reads the actual FORM program into memory. The
+input is handled in an abstract fashion as character streams. The stream implementation
+(<TT>tools.c</TT>) offers several functions to open, close, and read from a stream.
+Streams can be of different types including files, in-memory data like parts of
+other streams or dollar variables, as well as external channels. The access to
+the characters in all streams though is nicely uniform. In
+<TT>OpenInput()</TT> a stream is representing our input file. Most of the logic
+there deals with the jump to the requested module (skipping clear instructions).
+It uses the function <TT>GetInput()</TT> to get the next character in the stream.
+Which stream it reads from is determined by the variable <TT>AC.CurrentStream</TT>.
+This global variable in the sub-struct <TT>C_const</TT> of the <TT>ALLGLOBALS</TT>
+variable <TT>A</TT> is an example of how the different parts of FORM typically
+communicate with each other by means of global variables.
+
+<P>
+Next is the preprocessor. The preprocessor is implemented in the function
+<TT>PreProcessor()</TT> in <TT>pre.c</TT>. This function consists basically of two nested
+for-loops without conditions (<TT>for (;;) { ...}</TT>). The outer loop deals
+with one FORM module for each iteration, the inner loop deals with one input
+line. We have certain initializations done before in our example the code runs
+into the inner loop, where <TT>GetInput()</TT> reads our input file. The variables
+are all set such that the reading starts from the beginning of out input file.
+
+<P>
+The input in variable <TT>c</TT> is tested for special cases. Whitespaces are
+skipped. Comments starting with a star <TT>*</TT> (unless <TT>AP.ComChar</TT> is set to a
+different character) are also skipped including whole folds. The crucial check
+on <TT>c</TT> is the if-clause that checks it for being a preprocessor command (<TT>#</TT>),
+a module statement (<TT>.</TT>), or something else which is usually an ordinary
+statement.
+
+<P>
+<PRE>
+ 1      #define N "3"
+</PRE>
+
+<P>
+In our case, we have a preprocessor command in the input. The function
+<TT>PreProInstruction()</TT> is called to read and interpret the rest of the line.
+The first part deals with the loading of the command in a dedicated buffer. For
+the moment, we ignore the details for the special treatment of cases when we are
+already inside a if or switch clause in a FORM program. In our run, the
+function <TT>LoadInstruction(0)</TT> is simply called.
+
+<P>
+<TT>LoadInstruction()</TT> copies input into the preprocessor instruction buffer.
+Three variables govern this buffer: <TT>AP.preStart</TT> points to the start of the
+buffer, <TT>AP.preFill</TT> to the point where new input can be copied to, and
+<TT>AP.preStop</TT> to (roughly) the end of the buffer. This setup is quite typical
+for buffers in FORM. The memory is allocated at the start of FORM. Later, like
+at the end of <TT>LoadInstruction()</TT>, if the buffer gets to small, it can be
+replaced by a larger memory patch with the help of utility functions like
+<TT>DoubleLList()</TT>. The contents is copied from the old to the new buffer. Since
+this dynamical resizing of buffers needs to be done with most buffers
+occationally, most buffers in FORM store data such that it easily allows for
+copying, i.e.  usually C pointers are avoided and instead numbers representing
+offsets are used. Since the preprocessor instruction buffer just contains
+characters there is no problem here.
+
+<P>
+In <TT>LoadInstruction()</TT> with our input and the mode set to 5 the input is just
+copied directly without any special actions taking except for a zero that is
+added at the end of the data. <TT>PreProInstruction()</TT> examines the data in the
+preprocessor instruction buffer for special cases, and then does a look-up in
+the <TT>precommands</TT> variable. This is a vector of type <TT>KEYWORD</TT> which enables
+the translation of a string (the command) to a function pointer (the C function
+that performs the operations requested by preprocessor command).
+<TT>FindKeyword()</TT> does these translations and the found function pointer is then
+dereferenced with the rest of the input in the instruction buffer as an argument.
+
+<P>
+The function pointer will point to <TT>DoDefine()</TT> in our case. <TT>DoDefine()</TT>
+just calls <TT>TheDefine()</TT> that does the work. The if-clauses for 
+<BR><TT>AP.PreSwitchModes</TT> and <TT>AP.PreIfStack</TT> are present in most of the
+functions dealing with preprocessor commands. They check whether we are in a
+preprocessor if or switch block that is not to be considered, because the
+condition didn't hold. Then, the standard action is to just exit the current
+function leaving it with no effect. Since there are preprocessor commands like
+<TT>#else</TT> or <TT>#endif</TT> this decision can only be taken at this level of the
+execution and requires the repeated use of this idiom.
+
+<P>
+The function scans through possible arguments and the value. In the value, special
+characters are interpreted. Ultimately, the preprocessor variable is created and
+assigned in the called function <TT>PutPreVar()</TT>. The variable <TT>chartype</TT>
+deserves an explanation. One will find it used very often in the C code that
+does input parsing. <TT>chartype</TT> is actually a macro standing in for
+<TT>FG.cTable</TT>. This global, statically initialized (in <TT>inivar.h</TT>) vector
+contains a value of every possible ASCII character describing its parsing type.
+The parsing type groups different ASCII characters such that the syntax checking
+is facilitated, see <TT>inivar.h</TT> for details.
+
+<P>
+In <TT>PutPreVar()</TT> we get into the details of the name administration. We will
+just comment on some of the more general features. <TT>NumPre</TT> and <TT>PreVar</TT> are
+macros to access elements in <TT>AP.PreVarList</TT>. The type of <TT>AP.PreVarList</TT> is
+<TT>LIST</TT>. This is a generic type for all kinds of lists and it is used for many
+other variables in FORM. A <TT>LIST</TT> stores list entries in a piece of
+dynamically allocated memory that has no defined type (<TT>void *</TT>). The utility
+functions for managing <TT>LIST</TT>s like <TT>FromList()</TT> are ignorant about the
+actual contents and perform list-specific operations like adding, removing or
+resizing a list. An actual entry can be accessed by some pointer arithmetic and
+type casting. The <TT>PreVar</TT> macro contains such a cast to the type <TT>PREVAR</TT>
+which represents a preprocessor variable.
+
+<P>
+<TT>PutPreVar()</TT> creates a new list entry for us and basically copies the
+contents of the parameter <TT>value</TT> to the memory allocated to <TT>PREVAR</TT>'s
+<TT>name</TT>. So, by writing <TT>PreVar[0]-&gt;name</TT> or <TT>PreVar[0]-&gt;value</TT> we could
+access the strings <TT>N</TT> or <TT>3</TT>.
+
+<P>
+In <TT>TheDefine()</TT> the function <TT>Terminate()</TT> is used several times. This
+function ultimately exits the program, but first tries to clean up things and
+print information about the problems causing this program termination.
+
+<P>
+<PRE>
+ 2      
+ 3      Symbol x, y, z;
+</PRE>
+
+<P>
+In our run, we return to the function <TT>PreProcessor()</TT> and start a new inner
+loop iteration that reads a new line. After skipping the empty line we end up
+in the else-branch of the big if-clause testing <TT>c</TT> this time. Here the major
+steps are: we check again whether we are in a preprocessor if or switch, call
+<TT>LoadStatement()</TT> to read and prepare the input, and call
+<TT>CompileStatement()</TT> to perform the actions requested by the statement. Th
+programs enters the compiler stage.
+
+<P>
+We also see a call to <TT>UngetChar()</TT>, which puts back the character that has
+been read into the input stream. This is necessary, because 
+<BR><TT>LoadStatement()</TT> and <TT>CompileStatement()</TT> need the complete line for
+parsing. The variable <TT>AP.PreContinuation</TT> is used several times. This variable
+deals with statements that span several input lines. <TT>LoadStatement()</TT> can
+recognize unfinished statements and sets this variable accordingly.
+
+<P>
+<TT>LoadStatement()</TT> basically copies the input to the compiler's input buffer at
+<TT>AC.iBuffer</TT> (which has <TT>AC.iPointer</TT> and <TT>AC.iStop</TT> associated to it). It
+modifies the copy if necessary. The modification are to replace spaces by commas
+or insert commas at teh right spots to separate tokens. The interpretation steps
+that are following rely on these synactic conventions.
+
+<P>
+The call to <TT>CompileStatement()</TT> is done only if no errors occured and all
+lines of a statement have been gathered into the compiler's input buffer.
+<TT>CompileStatement()</TT> is called with the address of this input buffer and tries
+to identify the statement. Like in the preprocessor, the input string is search
+in a vector of <TT>KEYWORD</TT>s (in <TT>compiler.c</TT> and if found, a function pointer
+is dereferenced to the function that actually deals with the command and its
+options and arguments.  Here, we have actually two vectors of <TT>KEYWORD</TT>s,
+because some statements might be stated in abbreviated form. The function
+<TT>findcommand()</TT> deals with the search. <TT>CompileStatement()</TT> does some small
+extra work, like for example checking the correct order of statements. In our
+case, it calls the function <TT>CoSymbol()</TT>. This functions is in file
+<TT>name.c</TT>, because as a declaration it basically adds something to the name
+administration. Functions for other statements can be found in <TT>compcomm.c</TT>
+and <TT>compexpr.c</TT>.
+
+<P>
+<TT>CoSymbol()</TT> loops over the arguments and adds proper variable names together
+with their options to the symbols list <TT>AC.Symbols</TT> and the name
+administration (in the call to <TT>AddSymbol()</TT>.  In our case, we have <TT>x</TT>,
+<TT>y</TT>, and <TT>z</TT> added. We have already encountered the basic mechanism of how a
+specific struct is added to a <TT>LIST</TT>. The name administration was not
+explained before, though.
+
+<P>
+Symbols can appear in expressions that need to be encoded. The coding for
+symbols can simply be its entry index in the list <TT>AC.Symbols</TT>, but symbols
+also need to be recognized when an expression is parsed. Therefore a efficient
+look-up mechnism is required. This is achieved by a second data structure that
+holds the name strings in a tree for fast searching. The data in the symbol list
+does not contain the name string itself, but contains a referece (a index) into
+this name string tree. The tree is managed by generalized functions and types
+that are also used for other, similiar objects like vectors, indices, etc. The
+functions for name trees are located in the first part of the file <TT>name.c</TT>.
+The types <TT>NAMENODE</TT> and <TT>NAMETREE</TT> are defined in <TT>structs.h</TT>.
+<TT>NAMENODE</TT>s are the node of a balanced binary tree. It does not hold the
+name string just an index into <TT>NAMETREE</TT>. The actual data is contained in 
+<TT>NAMETREE</TT> that constitute one tree. This type has buffers for the nodes and
+for the name strings. This has the benefit of avoiding small malloc calls for
+individual nodes. Also, since all referencing is done via offsets into these
+buffers, a relocation or serialization of such a tree is very easy. In the
+struct <TT>C_const</TT> (aka the global <TT>AC</TT>) several name trees are defined, for
+dollar variables, expressions, etc. The symbols added in our example program go
+into the nametree referenced by <TT>AC.activenames</TT>, which is at this point equal
+to <TT>AC.varnames</TT>.
+
+<P>
+Our program returns to the <TT>PreProcessor()</TT> and starts parsing the next lines:
+
+<P>
+<PRE>
+ 5      L	f = (x+y)^2 - (x+z)^`N';
+ 6      L	g = f - x;
+</PRE>
+
+<P>
+This time the function <TT>DoExpr()</TT> will get called (via <TT>CoLocal()</TT>) for each
+line to do the parsing.  The function <TT>DoExpr()</TT> first tries to figure out
+what type of <TT>Local</TT> statement we have. In our cases we have an actual
+assignment. With the call to <TT>GetVar()</TT> we check whether a variable of the same
+name already exists. The search is done in the nametrees <TT>AC.varnames</TT> and
+<TT>AC.exprnames</TT>. Since our names are new we don't find a previous variable and
+simply call <TT>EntVar()</TT>. <TT>EntVar()</TT> creates an entry in <TT>AC.ExpressionList</TT>
+and puts the name into the <TT>AC.exprnames</TT> nametree. The entry in
+<TT>AC.ExpressionList</TT> is of type <TT>struct ExPrEsSiOn</TT>. There are more struct
+elements than in the case of symbols, but the principle is the same. Up to now,
+the right-hand-side (RHS) has not been looked at and therefore no information
+about it is saved in the expression's entry yet. The connection between the
+expression's entry in the <TT>AC.ExpressionList</TT> and the data containing the RHS
+will be made via the elements <TT>prototype</TT> and <TT>onfile</TT> as we will describe
+soon.  The access to elements in <TT>AC.ExpressionList</TT> is facilitated by the
+macro <TT>Expressions</TT>. The following code in <TT>DoExpr()</TT> builds up a so-called
+prototype and puts the RHS in encoded form into the buffer system via the call
+to <TT>CompileAlgebra()</TT>.
+
+<P>
+FORM uses the allocated memory in <TT>AT.WorkSpace</TT> for operations like the
+generation of terms. This memory stores <TT>WORD</TT>s and is used in a stack-like
+fashion with the help of the pointer <TT>AT.WorkPointer</TT>. A function can write to
+this memory and set <TT>AT.WorkPointer</TT> beyond the written data to insure that
+other functions that are called and might use the workspace as well do not
+overwrite this data. It is the responsibility of the function to reset
+<TT>AT.WorkPointer</TT> to its original value again (see variable <TT>OldWork</TT> in our
+case). Every thread in TFORM will have its own private work space.
+
+<P>
+FORM now uses <TT>AT.WorkSpace</TT> to build up a data structure that contains
+everything that needs to be known at a later stage about the expression that is
+parsed. The creation and the layout of the data is quite typical. First comes a
+header that signifies what is coming. Here, it is <TT>TYPEEXPRESSION</TT>. Then comes
+the length of the whole data, i.e. the total number of occupied <TT>WORD</TT>s. The
+actual contents is following, which is a so-called subexpression that we will
+discuss soon. The contents is followed by a coefficient and a zero, which
+signifies the end of the data.
+
+<P>
+<B>Coefficients</B> are coded in FORM always in the following manner: Since
+coefficients can in general be fractional numbers, we encode an integer
+numerator and an integer denominator. The integers can have arbitrary length
+(limited only by the buffer sizes, see the setup variables <TT>MaxNumberSize</TT> and
+<TT>MaxTermSize</TT>) and are encoded in <TT>WORD</TT>-pieces in little-endian convention.
+The number of allocated <TT>WORD</TT>s is always the same for the numerator and the
+denominator. The last word of the coefficient contains the size of the whole
+coefficient in words. The formal structure of a coefficients is therefore like
+this:
+<DIV ALIGN="CENTER">
+<I>NUMERATOR WORDS, DENOMINATOR WORDS, LENGTH</I>.
+
+</DIV>
+The integers are always
+unsigned, i.e. positive. Negative fractions are encoded by a negative length.
+Examples (with 16bit words): <!-- MATH
+ $2^{16}+2 = 65538$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="124" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2.png"
+ ALT="$2^{16}+2 = 65538$"></SPAN> gives words 2,1,1,0,5 and <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3.png"
+ ALT="$-5/2$"></SPAN>
+gives <SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4.png"
+ ALT="$5,2,-3$"></SPAN>.
+
+<P>
+The data structure in <TT>AT.WorkSpace</TT> is basically an instruction for the
+generator, a central function that does the main work during the execution of
+the FORM program, to generate an expression. The content of the expression is
+a subexpression. This is a pointer to the real content of the expression and
+will be substituted later after the execution. The main reason for this delayed
+expression insertion is that it can often save a lot of intermediate operations
+and data space and thereby speed up FORM. A case where such a thing can happen
+is, when an expression is used at different places and the different parts are
+brought together by some operations. Then, cancellations may occur or terms can
+be factored out and when the expressions finally is inserted the workload is
+less.
+
+<P>
+In our example run, the data that will later instruct the generator to 
+create an expression looks in total like this:
+
+<P>
+<DIV ALIGN="CENTER">
+<I>TYPEEXPRESSION, SUBEXPSIZE+3, 9, SUBEXPRESSION, 
+<BR>
+SUBEXPSIZE, 0, 1, AC.cbufnum, 1, 1, 3, 0</I>
+
+</DIV>
+
+<P>
+We used the macro names as in the actual code. <TT>AC.cbufnum</TT> is a variable that
+is the index of the compile buffer used for this parsed statement.
+At the end of the data preparation phase the pointer <TT>AT.WorkPointer</TT> is set
+beyond the data on the trailing zero, the pointer <TT>AT.ProtoType</TT>, which is
+used soon in following functions is set to the word <TT>SUBEXPRESSION</TT>.
+
+<P>
+The expression will be put into the scratch buffer system. This system comprises
+the small and large buffers and the scratch files. Where new data to the scratch
+buffers will be stored is of no concern to a function like <TT>DoExpr()</TT>, it
+simply uses several utility functions for that purpose. Still, we need to
+initialize the variable <TT>pos</TT> here that will indicate the position of the
+data, i.e. the expression, in the scratch file.
+
+<P>
+Next, the function <TT>CompileAlgebra()</TT> is called to parse the right hand side
+and put the codified expression into the FORM buffers. It basically calls two
+functions: <TT>tokenize</TT> and <TT>CompileSubExpressions</TT>. <TT>tokenize</TT> is the
+tokenizer that translates the input character string in a sanitized and partly
+interpreted string of codes. It will look up the variables named in the input
+string and put the index they have in the name administration into the tokenized
+output. Our input string is transformed into the code string like this
+
+<P>
+<PRE>
+   (     -13  LPARENTHESIS
+   x      -1  TSYMBOL
+           5
+   +     -26  TPLUS
+   y      -1  TSYMBOL
+           6
+   )     -14  RPARENTHESIS
+   ^     -25  TPOWER
+   2      -8  TNUMBER
+           2
+   -     -27  TMINUS
+   (     -13  LPARENTHESIS
+   x      -1  TSYMBOL
+           5
+   +     -26  TPLUS
+   z      -1  TSYMBOL
+           7
+   )     -14  RPARENTHESIS
+   ^     -25  TPOWER
+   `N'    -8  TNUMBER
+           3
+         -29  TENDOFIT
+</PRE>
+
+<P>
+This code string then lies in the <TT>AC.tokens</TT> buffer where it is used by
+subsequent functions.
+
+<P>
+The function <TT>CompileSubExpression()</TT> finds terms in an expression that might
+be reused at another place and extracts them. As one can see in the code, the
+function looks for terms in parentheses and works recursively. The end of such a
+term is each time marked with <TT>TENDOFIT</TT>. Then, the function
+<TT>CodeGenerator()</TT> called at the end of <TT>CompileSubExpression()</TT> does the
+real work.
+
+<P>
+In our example <TT>CodeGenerator()</TT> first gets the data
+<DIV ALIGN="CENTER">
+<I>LPARENTHESIS, TSYMBOL, 5, TPLUS, TSYMBOL, 6, TENDOFIT</I>
+
+</DIV>
+as a parameter, which is the term <SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.png"
+ ALT="$x+y$"></SPAN>. It builds up the actual term encoding
+in the workspace and first reserves for that enough space there. One can see the
+pointer arithmetic using constants like <TT>AM.MaxTal</TT>, which is the maximum
+number of words a number can occupy. It reserves space for the coefficient, an
+integer, and the actual term. Once a token is recognized, the equivalent term
+data is written to the workspace and the function <TT>CompleteTerm</TT> is called.
+This function completes the data to
+<DIV ALIGN="CENTER">
+<I>8, 1, 4, 5, 1, 1, 1, 3, 0</I>. 
+
+</DIV>
+The first word is the total length, i.e. 8 words. This is the length of the
+whole expression. The second word is the type of the term, which is a symbol. It
+is the value <TT>SYMBOL</TT> as defined in <TT>ftypes.h</TT>. This macro definition
+<TT>SYMBOL</TT> has the value 1 (in the FORM version at this time this reference is
+written). Following the type signifying word is the length of the term, which is
+4. Several such terms could follow each other, but we only have one term at the
+moment. Finally, we have the trailing words for the coefficient being 1 and a
+terminating zero. The meaning and interpretation of the words in the data of a
+single term after the type word and the length word are dependent on the type.
+For symbols, we have pairs of word, where the first word is the index of the
+symbol in the name administration and the second word is the exponent. Here we
+have symbol 5 (<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img6.png"
+ ALT="$= x$"></SPAN>) with an exponent 1.  After <TT>CompleteTerm()</TT> has
+constructed the whole expression it copies the data to the compile buffers with
+the help of the function <TT>AddNtoC()</TT>.
+
+<P>
+The compile buffers contain the instruction for the execution engine, the
+<TT>Processor()</TT>, that will start when the <TT>.sort</TT> command is parsed. Our terms
+are put into the right-hand-side buffers in the compile buffer. When the
+<TT>Processor()</TT> will read these buffers one after the other, it will take the
+terms and put them into the scratch buffer system. Then, they become the
+expressions upon which further statements do act. The compile buffers are stored
+in the list <TT>AC.cbufList</TT> and we get access to the elements via the cast
+<TT>((CBUF *)(AC.cbufList.lijst))</TT>. This cast is defined as a preprocessor macro
+called <TT>cbuf</TT>. The element <TT>cbuf[0]-&gt;numrhs</TT> (0 is the current compile
+buffer we are using) gives the number of entries in <TT>cbuf[0]-&gt;rhs</TT>, which is
+an array of pointer into <TT>cbuf[0]-&gt;Buffer</TT>. We have 3 elements:
+
+<P>
+<PRE>
+  cbuf[0]-&gt;rhs[1]   --&gt;
+     8, 1, 4, 5, 1, 1, 1, 3, 8, 1, 4, 6, 1, 1, 1, 3, 0
+  cbuf[0]-&gt;rhs[2]   --&gt;
+     8, 1, 4, 5, 1, 1, 1, 3, 8, 1, 4, 7, 1, 1, 1, 3, 0
+  cbuf[0]-&gt;rhs[3]   --&gt;
+     9, 6, 5, 1, 2, 0, 1, 1, 3, 9, 6, 5, 2, 3, 0, 1, 1, -3, 0
+</PRE>
+
+<P>
+<TT>cbuf[0]-&gt;rhs[0]</TT> is not used and the data lies consecutively in 
+<BR><TT>cbuf[0]-&gt;Buffer</TT>. The meaning of the first two entries has already been
+explained. These are expressions containing <SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.png"
+ ALT="$x+y$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.png"
+ ALT="$x+z$"></SPAN>, respectively.
+The last expression uses subexpressions that have the type <TT>SUBEXPRESSION</TT>
+<SPAN CLASS="MATH"><IMG
+ WIDTH="32" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.png"
+ ALT="$= 6$"></SPAN>. The length of a subexpression is 5 and the contents <SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.png"
+ ALT="$1,2,0$"></SPAN> means
+that expression 1 needs to be inserted with an exponent of 2. The zero is a
+dirty flag that signals to the processor the state of the subexpression. Here in
+the compile buffers it is simply cleared to zero. The contents <SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.png"
+ ALT="$2,3,0$"></SPAN> of the
+second subexpression should be obvious. Finally, we have an negative
+coefficient for the second subexpression which accounts for the minus sign
+between the parentheses in our original expression.
+
+<P>
+We return to the function <TT>DoExpr()</TT> where the prototype of the expression is
+put into the scratch system via the call <TT>PutOut()</TT> and we are finished with
+this line in the input file. The next line defining a second local expression
+works the same.
+
+<P>
+We come to the parsing of the following statements:
+
+<P>
+<PRE>
+ 7      
+ 8      Brackets x;
+ 9      Print;
+</PRE>
+
+<P>
+The bracket statement is dealt with in function <TT>DoBrackets()</TT>. It sets the
+flag <TT>AR.BracketOn</TT> to 1 and constructs the term that will stand outside the
+bracket. This term is copied into the <TT>AT.BrackBuf</TT> buffer, where it can be
+used by the execution engine when it needs to insert this heading term into an
+expression.
+
+<P>
+The print statement is parsed in function <TT>DoPrint()</TT>. Since we don't have any
+arguments to <TT>Print</TT> all active expressions shall be printed.
+<TT>DoPrint()</TT> just loops through the <TT>Expressions</TT> list and sets the
+<TT>printflag</TT> to 1 for each expression.
+
+<P>
+With the next statement in our input file
+
+<P>
+<PRE>
+10      .sort
+</PRE>
+
+<P>
+we will get to know the other central parts of FORM: the processor and the
+sorting routines. The code in the <TT>PreProcessor()</TT> will call
+<TT>ExecModule()</TT>
+which calls <TT>DoExecute()</TT>. We can ignore a lot of code there that is only for
+parallelized versions of FORM. There are three important functions calls
+happening. First, <TT>RevertScratch()</TT> is called. FORM uses three scratch
+buffers: input buffer, output buffer, and the hide buffer. The usual mode of
+operation is to apply statements on expressions in the input buffer, sort and
+normalize the result, and write it into the output buffer. This repeats for
+every executing module and therefore an important optimization is made: the
+input buffer and the output buffer simply change their roles.
+<TT>RevertScratch()</TT> does this job.  The second and third important calls are to
+<TT>Processor()</TT> and <TT>WriteAll()</TT>. 
+
+<P>
+<TT>Processor()</TT> is, as the name suggests, the main processor that executes
+statements and deals with the results. A lot of initialization work is done
+before we go into the large loop over the expressions that spans almost the
+whole function. Our expressions have as regular expressions from the scratch
+buffers the <TT>inmem</TT> flag set to zero, so we go into the else branch of the
+checking if-clause. There we go to the case of a <TT>LOCALEXPRESSION</TT>. The main
+logic here is to do a single call to <TT>GetTerm()</TT> to get the first term from
+the input file and copy that to the output with the call to <TT>PutOut()</TT>. This
+first term, which is a subexpression, serves as a header for the expression. It
+follows a (while-)loop that calls <TT>GetTerm()</TT>, and if there are still terms,
+the loop executes its body and calls <TT>Generator()</TT>. After this loop, some
+clean-up and a final <TT>EndSort()</TT> is done, before the outer loop over the
+expressions repeats. <TT>Generator()</TT> is the function where the read input, which
+is <I>9, 6, 5, 3, 1, 0, 1, 1, 3</I>, will be substituted and expanded.
+
+<P>
+<TT>Generator()</TT> gets the term in the workspace and first tries to do all
+substitutions (<TT>SUBEXPRESSION</TT>), then applies the statements in the compile
+buffers to the normalized terms, substitutes again if necessary, do brackets,
+and finally sorts the result.
+
+<P>
+The call to <TT>TestSub()</TT> does the search for subexpressions. <TT>TestSub()</TT> will
+find a subexpression in our case and return the number (3) of this subexpression
+and set other global variables ready for the following steps. In <TT>Generator()</TT>
+we enter therefore the if-clause checking <TT>replac</TT><SPAN CLASS="MATH"><IMG
+ WIDTH="32" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.png"
+ ALT="$&gt; 0$"></SPAN>.  Depending on the
+power of the subexpression different operations are taken. We have our
+subexpression to the power one only, which is an easy case. The actual
+substitution is performed by the function <TT>InsertTerm()</TT>. Since the new term
+might again contain subexpressions we do a recursive call to <TT>Generator()</TT>.
+Our expression contains several layers of subexpressions which are all dealt
+with as described above. Only the powers of the other subexpressions are
+different from one, so we get slightly more work to be done which involves the
+expansion of the terms using binomials. 
+
+<P>
+Finally, the call to <TT>TestSub()</TT> at the beginning of <TT>Generator()</TT> will
+return zero. The function <TT>Normalize()</TT> is called, which puts the terms in a
+canonical form, i.e. terms are ordered and collected with the correct
+coefficient. In our example, as the first fully subsituted term we have
+<I>12, 1, 4, 6, 1, 1, 4, 6, 1, 1, 1, 3</I> before the call to
+<TT>Normalize()</TT>, which means we have a term <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img12.png"
+ ALT="$x*x$"></SPAN>. <TT>Normalize()</TT>
+makes this into <I>8, 1, 4, 6, 2, 1, 1, 3</I>, which is <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="19" ALIGN="BOTTOM" BORDER="0"
+ SRC="img13.png"
+ ALT="$x^2$"></SPAN>.
+
+<P>
+Then, we loop over the statements in the compile buffer. <TT>level</TT> is the
+instruction counter. We have a long switch-clause that interprets the statement
+type identifiers like <TT>TYPECOUNT</TT>. Statements with <TT>TYPEEXPRESSION</TT> are not
+treated here. So we loop over all the compile buffer statements here and only
+call <TT>TestMatch()</TT> at the loop's end. This function has no effect in our
+example, because we have no pattern matching going on.
+
+<P>
+Then, the function <TT>PutBracket()</TT> is called to deal with brackets. Brackets
+are implemented by putting the special code <TT>HAAKJE</TT> inside the expression.
+The terms before the <TT>HAAKJE</TT> are outside the bracket, everything following it
+will be inside the bracket. 
+
+<P>
+At the end of the loop over the terms in the expressions, the function
+<TT>StoreTerm()</TT> is called. This function puts the result of the processing in
+the output scratch buffers. Finally, we return to <TT>Processor()</TT>. There the
+final sorting is started. Also, the printing of the expressions is done here.
+
+<P>
+The parsing in <TT>PreProcessor()</TT> continues with
+
+<P>
+<PRE>
+11      
+12      #do i=2,3
+13      Id	x?^`i' = x;
+14      #enddo
+</PRE>
+
+<P>
+Here we have a somewhat more complicated example of preprocessor instructions.
+The do-loop is treated in <TT>DoDo()</TT> which sets up data structures (<TT>DOLOOP</TT>)
+to guide the preprocessor when it is parsing the loop body. The statement line
+will then be presented to the compiler two times and with the correct values of
+the preprocessor variable <TT>i</TT>. The compiler deals with this statement in
+<TT>CoId()</TT> which is just calling <TT>CoIdExpression()</TT>.  <TT>CoIdExpression()</TT>
+puts a <TT>TYPEIDNEW</TT> code into the lhs compile buffer. This tells the processor
+later how to do the pattern matching. The rhs is the term <TT>x</TT> that will be
+inserted.
+
+<P>
+The parsing continues and ends with
+
+<P>
+<PRE>
+15      
+16      Print +s;
+17      .end
+</PRE>
+
+<P>
+The way these statements are treated and how the program is executed has already
+been described. The pattern matching is something that has not occurred before,
+though. We will not describe it here, since there is a dedicated section in this
+manual for that. After the final sorting, FORM will clean up tempory files and
+other resources that are not automatically freed by the operating system before
+FORM ends itself.
+
+<P>
+
+<H1><A NAME="SECTION00050000000000000000">
+Specific topics</A>
+</H1>
+
+<P>
+<A NAME="sec:indepth"></A>
+<P>
+
+<H2><A NAME="SECTION00051000000000000000">
+Pattern matching</A>
+</H2>
+
+<P>
+to be written
+
+<P>
+
+<H2><A NAME="SECTION00052000000000000000">
+The problem of dummy indices</A>
+</H2>
+
+<P>
+FORM has a indices that can be automatically renumbered. With this we mean 
+that when we have an expression like
+
+<P>
+<PRE>
+f(i)*g(i)*h(j)*k(j)-f(j)*g(j)*h(i)*k(i)
+</PRE>
+
+<P>
+we can say
+
+<P>
+<PRE>
+Sum i,j;
+</PRE>
+
+<P>
+and FORM will change the expression into
+
+<P>
+<PRE>
+f(N1_?)*g(N1_?)*h(N2_?)*k(N2_?)-f(N2_?)*g(N2_?)*h(N1_?)*k(N1_?)
+</PRE>
+
+<P>
+in which <TT>Ni_?</TT> are internal indices.
+
+<P>
+These internal indices follow a number of rules:
+
+<OL>
+<LI>their numbers (<TT>AC.CurDum</TT>) start at <TT>AM.IndDum</TT>, which again starts at 
+   <TT>AM.DumInd+WILDOFFSET</TT> and <TT>AM.DumInd</TT> starts at <TT>AM.OffsetIndex + 2*WILDOFFSET</TT>.
+   Hence <TT>AC.CurDum</TT> starts at <TT>AM.OffsetIndex +
+<BR>
+3*WILDOFFSET</TT>.
+   Because we need this extra space <TT>WILDOFFSET</TT> cannot be too large and this 
+   limits the number of indices that is allowed.
+</LI>
+<LI>The dimension of the dummy indices is equal to the default dimension.
+</LI>
+<LI>The internal (dummy) indices can be renamed at any time in order to 
+   create uniquely minimal terms. In the above expression that would mean 
+   that the second term would be 'rearranged' into
+<PRE>
+f(N2_?)*g(N2_?)*h(N1_?)*k(N1_?) --&gt;
+                          f(N1_?)*g(N1_?)*h(N2_?)*k(N2_?)
+</PRE>
+   and the expression becomes zero.
+</LI>
+</OL>
+
+<P>
+There are problems with this concept.
+
+<OL>
+<LI>Multiplying expressions with dummy indices could give a repetition of 
+	the same indices as in <TT>(f(N1_?)*g(N1_?))^3</TT>. This has been solved 
+   partially as can be seen with the following program:
+<PRE>
+   CF  f,g;
+   L   F = (f(N1_?)*g(N1_?))^3;
+   L   G = f(N1_?)*g(N1_?);
+   .sort
+   L   G3 = G^3;
+   Print;
+   .end
+</PRE>
+   The routine that takes care of the proper shifts in dummy numbers is
+   <TT>MoveDummies()</TT>. As one can see from the example, the <TT>SUBEXPRESSION</TT> to a
+   power isn't treated this way. It would have a serious impact on the
+   speed. With the <TT>G^3</TT> it is different because that is slower to begin
+   with.
+</LI>
+<LI>Keep Brackets is extremely dangerous. The problem here is
+<PRE>
+f(N1_?)*(g(N1_?)*h(N2_?)*k(N2_?)+g(N2_?)*h(N1_?)*k(N2_?))
+</PRE>
+   What is inside the brackets is invisible during the module. Hence a 
+   renumbering that involves <TT>f(N1_?)</TT> only can change <TT>N1_?</TT> into <TT>N2?_</TT>
+   (FORM doesn't know there is already a <TT>N2_?</TT>) and anyway, the 
+   corresponding <TT>N1_?</TT> remains as it is.
+   It means that there are complicatetions with <TT>Sum</TT>, <TT>Trace4</TT> and things like
+   <TT>id  p = f(?);</TT> which can generate dummy indices.
+</LI>
+</OL>
+
+<P>
+The second problem requires some action.
+<DL COMPACT>
+<DT>A</DT>
+<DD>When Keep Brackets is active, renumbering should not be allowed, until
+   the contents are multiplied with the outside of the brackets.
+</DD>
+<DT>B</DT>
+<DD>The multiplying with the contents of the bracket should follow the same
+   procedure as the multiplication with a complete expression 
+<BR>   (<TT>MoveDummies()</TT>).
+</DD>
+<DT>C</DT>
+<DD>Introduction of new dummy indices should be above <TT>AM.IndDum + WILDOFFSET/2</TT>.
+   These should vanish when the term is renumbered after multiplying the
+   outside of the bracket with the inside.
+</DD>
+</DL>
+
+<P>
+<TT>Trace4</TT> involves the creation of dummy indices, but these vanish again 
+without renumbering. Hence they don't cause problems.
+
+<P>
+In order to implement <TT>A-C</TT> we have to have a good look at all routines that 
+use <TT>AR.CurDum</TT> and call <TT>ReNumber()</TT> or <TT>DetCurDum()</TT>.
+
+<P>
+
+<H2><A NAME="SECTION00053000000000000000">
+Values of indices (and vectors)</A>
+</H2>
+
+<P>
+The indices and vectors share common use. That means that vectors can occur 
+in the places that are reserved for indices. In addition we have various 
+types of indices. Hence it is important to know what range of values in an 
+index location refers to what.
+
+<P>
+
+<OL>
+<LI>Special values:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>GAMMA1</TT></TD>
+<TD ALIGN="RIGHT">0</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Dirac unit matrix</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>GAMMA5</TT></TD>
+<TD ALIGN="RIGHT">-1</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Dirac gamma 5 (only defined in 4 dimensions)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>GAMMA6</TT></TD>
+<TD ALIGN="RIGHT">-2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Dirac (1+gamma5) (only defined in 4 dimensions)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>GAMMA7</TT></TD>
+<TD ALIGN="RIGHT">-3</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Dirac (1-gamma5) (only defined in 4 dimensions)</TD>
+</TR>
+</TABLE>
+
+<P>
+The above 4 indices are to be used only inside the function <TT>g_</TT>.
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>FUNNYVEC</TT></TD>
+<TD ALIGN="RIGHT">-4</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used in <TT>replace_</TT> to indicate a vector with an
+								unspecified index. Hence <TT>VECTOR,4,numvec,FUNNYVEC</TT>
+								instead of <TT>INDEX,3,numvec</TT>.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>FUNNYWILD</TT></TD>
+<TD ALIGN="RIGHT">-5</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used to indicate an argument field wildcard like
+								<TT>?a</TT> inside a tensor.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>SUMMEDIND</TT></TD>
+<TD ALIGN="RIGHT">-6</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used in <TT>DELTA</TT> to indicate <TT>d_(mu,mu)-4</TT> as generated
+								in traces.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>NOINDEX</TT></TD>
+<TD ALIGN="RIGHT">-7</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used by <TT>ExecArg()</TT> in splitting a multi-delta or
+								multi-index. Taking out one to make a new argument
+								we leave the old one with two or one empty spots.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>FUNNYDOLLAR</TT></TD>
+<TD ALIGN="RIGHT">-8</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used to indicate a dollar variable inside a tensor.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>EMPTYINDEX</TT></TD>
+<TD ALIGN="RIGHT">-9</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>Used in the bracket statement to indicate a <TT>d_</TT>.
+								Because <TT>d_</TT> isn't a regular function we cannot use
+								the function notation and it needs two arguments.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=6><TT>MINSPEC</TT></TD>
+<TD ALIGN="RIGHT">-10</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+<TT>MINSPEC</TT> must be smaller than all the other special values.
+
+<P>
+</LI>
+<LI>Fixed indices. They are in the range of 1 to <TT>AM.OffsetIndex-1</TT>.
+
+<P>
+</LI>
+<LI>Vectors are in the range from 
+<BR>	<TT>AM.OffsetVector = -2*WILDOFFSET+MINSPEC;</TT> 
+<BR>
+to 
+<BR>	<TT>AM.OffsetVector + WILDOFFSET</TT>
+
+<P>
+</LI>
+<LI>Wildcard vectors are in the range 
+<BR>	<TT>AM.OffsetVector + WILDOFFSET</TT> 
+<BR>
+to 
+<BR>	<TT>AM.OffsetVector + 2*WILDOFFSET</TT>
+
+<P>
+</LI>
+<LI>Regular indices are in the range from 
+<BR>	<TT>AM.OffsetIndex</TT> to <TT>AM.OffsetIndex + WILDOFFSET</TT>
+
+<P>
+</LI>
+<LI>Wildcard indices are in the range 
+<BR>	<TT>AM.OffsetIndex + WILDOFFSET    (=AM.WilInd)</TT> 
+<BR>
+to 
+<BR>	<TT>AM.OffsetIndex + 2*WILDOFFSET  (=AM.DumInd)</TT>
+
+<P>
+</LI>
+<LI>Unused in the range of 
+<BR>	<TT>AM.OffsetIndex + 2*WILDOFFSET  (=AM.DumInd)</TT> 
+<BR>
+to 
+<BR>	<TT>AM.OffsetIndex + 3*WILDOFFSET  (=AM.IndDum)</TT>
+
+<P>
+</LI>
+<LI>Summed indices (<TT>Ni_?</TT>) are in the range of 
+<BR>	<TT>AM.OffsetIndex + 3*WILDOFFSET  (=AM.IndDum)</TT>
+    to 
+<BR>	<TT>AM.OffsetIndex + 4*WILDOFFSET</TT>
+
+<P>
+</LI>
+<LI>Unused in the range of 
+<BR>	<TT>AM.OffsetIndex + 4*WILDOFFSET</TT> 
+<BR>
+to 
+<BR>	<TT>AM.OffsetIndex + 5*WILDOFFSET  (=AM.mTraceDum)</TT>
+
+<P>
+</LI>
+<LI>Summed indices as generated by the trace routines are above 
+<BR>	<TT>AM.OffsetIndex + 5*WILDOFFSET  (=AM.mTraceDum)</TT>
+</LI>
+</OL>
+
+<P>
+<I>Note (JV)</I>: I am not sure why there are unused regions. I must have had a 
+reason for them, but I have forgotten about it (it was more than 20 years 
+ago). And then, maybe it is used somewhere in a totally untransparent way.
+
+<P>
+<I>Note 2 (JV)</I>: It was good to make this list. It turned out that in several 
+places the code that checks for wildcard indices was only limited from 
+below, not from above. It would of course be very rare to run into trouble 
+with this, but it is better to have the code formally correct. One never 
+knows. This was particularly the case in <TT>FindRest()</TT> (in <TT>findpat.c</TT>). There may 
+be more. It is best to repair this, whenever encountered.
+
+<P>
+From the above it should be clear that on a 32-bits computer 
+<BR><TT>5*WILDOFFSET+AM.OffsetIndex+nTraceDummies &lt; 2^15</TT> 
+<BR>
+in which <TT>nTraceDummies</TT> is the number of dummies that can be introduced when 
+taking a 4-dimensional trace.
+
+<P>
+If we assume that we will not take traces of more than 200 gamma matrices 
+(each with a different index, because otherwise there are contractions) 
+<TT>nTraceDummies</TT> will be at most 100. <TT>AM.OffsetIndex</TT> is by default 128.
+The value that we selected for <TT>WILDOFFSET</TT> is 6100 which allows a maximum 
+value of 2167 for <TT>AM.OffsetIndex</TT>.
+
+<P>
+
+<H1><A NAME="SECTION00060000000000000000">
+The test suite</A>
+</H1>
+
+<P>
+The subdirectory <TT>check</TT> contains a test suite for FORM. Using the autoconf
+facilities the checks can be started with the command <TT>make check</TT>.
+Otherwise, one can issue the command <TT>ruby form.rb</TT> in the <TT>check</TT>
+directory.
+
+<P>
+The test suite is written in the language
+Ruby<A NAME="tex2html1"
+  HREF="#foot2886"><SUP><SPAN CLASS="arabic">1</SPAN></SUP></A>. Ruby itself already offers a
+unit testing framework and this is used with as minimal as possible extensions
+to make the creation of test cases for FORM programs easy. All the extensions
+to the built-in Ruby testing framework (<TT>Test::Unit</TT>) are contained in the
+file <TT>form.rb</TT>. This file also contains code to load test cases from other
+<TT>*.rb</TT> files in the <TT>check</TT> directory. Therefore all test cases are
+contained in appropriately named <TT>*.rb</TT> files. The makefile's purpose is to
+integrate the call <TT>ruby form.rb</TT> into the autoconf system.
+
+<P>
+<I>Side note:</I>
+The choice to use Ruby and its built-in test framework was taken for several
+reasons: It makes sense to use or adapt already existing testing frameworks in
+order to keep the extra cost of maintenance as low as possible for the FORM programmers. There are numerous systems available on the market, some are part
+of a language runtime environment (libraries), and some are dedicated programs
+with a custom configuration language. Since the tests for FORM programs center
+mainly about text processing, i.e. comparing the textual FORM output to a
+correct answer, we need powerful text processing facilities like pattern
+matching. But we also need file operations and information from the operating
+system to check the run of a FORM program, eventually. All this is readily
+available in the testing frameworks of scripting languages, like Ruby, Python,
+or Tcl. Ruby was ultimately chosen, because the mixing of FORM code with the
+steering scripting language code looked nicest, and the small amount of extra
+(Ruby) syntax necessary makes it convenient to add new test cases.
+
+<P>
+A new test case can be implemented in the following way. First of all, we need a
+FORM program that is to be run. It might be a program that exhibits an actual
+bug in (a previous version of) FORM or that contains generic code that should
+be guaranteed to work, also in coming releases of FORM. It might also be code
+that deliberately crashes FORM or causes other errors, like syntax errors, if
+this behavior of FORM is to be assumed. Usually, the FORM program is rather
+short or can be made such. In this case, we are going to mix the Ruby and the
+FORM code in one file. Alternatively, the FORM program can also be kept in a
+separate file. This option will be discussed later.
+
+<P>
+Now, either one choses an existing <TT>*.rb</TT> file (not <TT>form.rb</TT>) or starts a
+new one. The name of the file should fit the test case scenario. In this file we
+need to define a Ruby class that will contain our FORM code as well as the
+checks (assertions) we want to impose on the run.
+
+<P>
+The generic frame of this test case definition looks like this:
+
+<P>
+<PRE>
+  class [Test name] &lt; FormTest
+  def setup
+    [Setup code, usually this includes the FORM program code]
+  end
+  def test1
+    [Execution code, and the assertion and testing code]
+  end
+  end
+</PRE>
+
+<P>
+The text in the brackets [ ] needs to be filled with our specific code. The
+details of the Ruby code itself will be explained later. For a start, it is
+usually advisable just to copy an existing test case and modify it.
+
+<P>
+Every class defined in this way will be used for the testing. First, Ruby will
+run the code in the class method <TT>setup</TT>, and then it runs <TT>test1</TT>.
+
+<P>
+A complete test might look like this:
+
+<P>
+<PRE>
+  class SymbolIdTest &lt; FormTest
+  def setup
+    input &lt;&lt;-EOF
+  S x, y;
+  L f = (x+y)^100;
+  id x = y;
+  print;
+  .end
+    EOF
+  end
+  def test1
+    execute FORM
+    assert no_problem
+    assert result("f") =~ 
+        pattern("1267650600228229401496703205376*y^100;")
+  end
+  end
+</PRE>
+
+<P>
+We have chose the name <TT>SymbolIdTest</TT> for our class. We defined the FORM program in-line with a so called here document (<TT>&#171;-EOF ... EOF</TT>). We do run
+the FORM executable. Alternatives would be TFORM, for example. The assertions
+we have are that no problem occurred, i.e. no syntax error, no runtime error, or
+similar things. We also check the output of our FORM program. We compare via
+pattern matching the result of the expression <TT>f</TT> with the correct answer. The
+function <TT>result()</TT> extracts the appropriate line from the output, <TT>=~</TT> is
+the pattern matching operator in Ruby, and the function <TT>pattern()</TT> prepares
+special characters like the caret (^) for the pattern matcher.
+
+<P>
+Next time we run the test suite, our test will be run as well. If no assertions
+are violated, we will only see the number of successful tests and assertions
+increased in the summary output.
+
+<P>
+Even though the extra Ruby syntax is kept to a minimum and is rather
+straightforward, some remarks about the Ruby language are useful here. Classes
+are defined by the keyword <TT>class</TT>, and methods (or functions) are declared
+with the keyword <TT>def</TT>. These definitions are always ended with the keyword
+<TT>end</TT>. <TT>FormTest</TT> is a class defined in <TT>form.rb</TT> that contains all the
+special code for FORM test and that is derived from the built-in Ruby test
+case class <TT>TestCase</TT>. For every test case we derive again from this class
+(<TT>class B &lt; A</TT> says that <TT>B</TT> is derived from <TT>A</TT>). We don't need
+semicolons to end a line and indentation is arbitrary. Class names should be
+capitalized. In Ruby, parentheses around the arguments of functions can often be
+omitted. We use this possibility when we call the functions <TT>input</TT>,
+<TT>execute</TT>, and <TT>assert</TT>. We could have written <TT>execute(FORM)</TT> as well,
+for example. The here document (<TT>&#171;-EOF ... EOF</TT>) can also use other markers
+instead of <TT>EOF</TT>, of course. The minus sign before <TT>EOF</TT> allows the end
+marker to be indented. Comments are started with a #.
+
+<P>
+One class can actually contain more than one test. The testing framework will
+call the method <TT>setup</TT> and then a method whose name starts with <TT>test</TT>
+(Note: in newer versions of Ruby the name could be just <TT>test</TT>, but older
+versions (<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.png"
+ ALT="$\ge$"></SPAN>1.8.x) require at least one following extra character). If there are
+more methods starting with <TT>test</TT>, each will be called and for each <TT>setup</TT>
+will be called first.
+
+<P>
+In <TT>setup</TT> we need to prepare everything for the execution of FORM. We can
+either use <TT>input</TT> to in-line the source directly, or we can use
+<TT>input_file</TT> with a string as an argument to reference an external file,
+e.g.
+<PRE>
+  input_file "parsebug.frm"
+</PRE>
+The function <TT>input</TT> will create a temporary
+FORM file for the contents. The name of the file is defined in <TT>form.rb</TT>.
+The executable will later be run with the given name or the name of the
+temporary file as an argument. If additional arguments need to be given to the
+executable, the function <TT>extra_parameter</TT> can be used, like e.g.
+<PRE>
+  extra_parameter "-w4 -l"
+</PRE>
+
+<P>
+Sometimes one might need to prepare more things for a FORM run, like setting
+up certain files or starting an external program. This needs to be done
+by ordinary Ruby code. For this, some more of the Ruby language needs to be
+known by the user.
+
+<P>
+In the class methods with a name starting with <TT>test</TT> we put the code to run
+the FORM executable and to test the outcome. Usually, the first line will be
+the call to the executable itself, either
+<PRE>
+  execute FORM
+</PRE>
+or
+<PRE>
+  execute TFORM
+</PRE>
+(P<SMALL>AR</SMALL>FORM is not supported yet). The function <TT>execute</TT> will run the
+executable with the necessary or requested arguments, but it will run it under
+the supervision of the <TT>strace</TT> system utility. Therefore <TT>strace</TT> needs to
+be present on the system (options to enable or disable the use of <TT>strace</TT>
+will probably be added in the future). <TT>strace</TT> is used to get detailed
+information about the return value or possible failure states of the executable.
+The output of <TT>strace</TT> will be saved in a temporary file and made available to
+the test case programmer in a Ruby variable. The regular output and the error
+channel output will be available in Ruby variables as well.
+
+<P>
+The Ruby variables containing the output are <TT>@strace_out</TT>, <TT>@stdout</TT>,
+and <TT>@stderr</TT> (the leading @-sign is Ruby syntax for specifying instance
+variables, i.e. variables belonging to a certain object). These variables are the
+primary source for doing tests. In principle, these variables can be
+investigated directly, for example via pattern matching like
+<PRE>
+  if @strace_out =~ /Segmentation fault/
+    ...
+  end
+</PRE>
+which checks whether a segmentation fault has occurred (the slashes in Ruby
+define a pattern). But for the most common cases some test functions
+exist that encapsulate necessary pattern matching details. These functions
+return true or false values which can be used as arguments to the <TT>assert</TT>
+function. The <TT>assert</TT> function raises an error if the argument is false.
+
+<P>
+Available tests functions are:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>crash</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if a crash (segmentation fault) occurred</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>warning</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if FORM has issued a warning</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>compile_error</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if FORM has found a syntax error</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>runtime_error</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if FORM has terminated prematurely</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>error</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if <TT>compile_error</TT> or <TT>runtime_error</TT> is true or
+					 the standard error channel contains data</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>problem</TT></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=20>true if <TT>warning</TT> or <TT>error</TT> or <TT>crash</TT> is true</TD>
+</TR>
+</TABLE>
+
+<P>
+Additionally, the logical opposite of each function exists with a name starting
+with <TT>no_</TT>, like <TT>no_problem</TT> or <TT>no_crash</TT>.
+
+<P>
+There is also the function <TT>return_value</TT> which gives the return value of the
+FORM program as an integer, so one could do a check like
+<PRE>
+  assert return_value == 66
+</PRE>
+
+<P>
+If pattern matching is coded directly, like in our example, some details have to
+be considered. The operator <TT>=~</TT> will try to match a string with a pattern.
+The variables like <TT>@stdout</TT> are actually strings (they do contain the
+carriage return and/or line feed for multi-line output). Patterns in Ruby are
+written between slashes and various characters are interpreted in a special way
+(following the widely used regex-syntax).
+
+<P>
+There are four functions to facilitate things: <TT>result()</TT>, <TT>pattern()</TT>,
+<TT>exact_result()</TT>, and <TT>exact_pattern()</TT>. <TT>result()</TT> takes a string being
+the name of an expression and returns a string that only contains the lines
+belonging to the last output of this expression. If it is not the last output of
+an expression that is wished for, a second numeric parameter can be given that
+specifies the index of the output (counting starts at 0).  While <TT>result()</TT>
+removes all line breaks and whitespaces, <TT>exact_result()</TT> leaves them in
+place.  <TT>pattern()</TT> transforms special characters in the given string, removes
+whitespaces and line breaks, and returns the string as a pattern. Since FORM expressions usually contain a lot of special characters like +, *, ., etc. they
+cannot not be simply used in a pattern. <TT>pattern()</TT> transforms these
+characters automatically into the correct regex equivalent, e.g. + becomes
+&#92;+.  With it, a FORM expression can be directly given as an
+argument and used in a pattern matching (see example). <TT>exact_pattern()</TT> does
+not treat whitespaces and line breaks in a special way as <TT>pattern()</TT> does and
+can therefore be used when a exact comparison is required (if for example a bug
+in the output functions of FORM had caused some whitespace or line breaks to
+be missing and a test case were required to check for this behavior).
+
+<P>
+If one doesn't want or cannot use the <TT>assert</TT> function, one can signal a test
+failure to the testing framework by raising an <TT>AssertionFailedError</TT>
+directly, like for example
+<PRE>
+  if return_value != 2
+    raise AssertionFailedError.new("return value is wrong!")
+  end
+</PRE>
+
+<P>
+Suppose a FORM program should have deleted some file (<TT>#remove</TT>), one could
+implement the following test
+<PRE>
+  if File.exist?("thenameofthefile")
+    raise AssertionFailedError.new("File still exists!")
+  end
+</PRE>
+
+<P>
+The testing framework actually not only calls <TT>setup</TT> and each <TT>test</TT> method
+but also a method called <TT>teardown</TT>. This method is responsible for cleaning
+up things at the end of each test run. The class <TT>FormTest</TT> provides such a
+<TT>teardown</TT> method that will be inherited by the users test case class unless
+it is overwritten. It calls the method <TT>remove_files</TT> to delete all temporary
+files that have been created so far. <TT>remove_files</TT> can be called by the user
+directly. If <TT>teardown</TT> is to be replaced by a specific implementation, it is
+advisable to still call <TT>FormTest</TT>'s <TT>teardown</TT> (using Ruby's command
+<TT>super</TT>), like for example
+<PRE>
+  ...
+  def teardown
+    super
+    File.delete("extra.log")
+  end
+  ...
+</PRE>
+
+<P>
+At last, a complete example as it is actually contained in the repository.
+<PRE>
+    #[ SparseTable1 :
+    =begin
+      Bugs reported 2004-04-06 by Misha Tentukov
+      PrintTable and FillExpression did not work with non-sparse tables
+      Fixed 2005-09-27
+    =end
+    class SparseTable1 &lt; FormTest
+    def setup
+      input &lt;&lt;-EOF
+    cf f;
+    s x;
+    ctable Tab(1:`TableSize');
+    ctable TabNew(1:`TableSize');
+    
+    #do i=1,`TableSize',1
+    Fill Tab(`i')=f(`i');
+    .sort
+    #enddo
+    
+    * BUG1 (not all elements are printed):
+    PrintTable Tab;
+    
+    bracket x;
+    .sort
+    L expr1=table_(Tab,x);
+    print;
+    .sort
+    
+    bracket x;
+    .sort
+    
+    * BUG 2 ( seems only TabNew(1) is ok - further everything is broken):
+    Fillexpression TabNew=expr1(x);
+    .sort
+    
+    #do i=1,`TableSize'
+    L e`i'=TabNew(`i');
+    #enddo
+    print;
+    .sort
+    .end
+      EOF
+      extra_parameter "-D TableSize=10"
+    end
+    def test1
+      execute FORM
+      assert no_problem
+      assert result("expr1") =~ pattern(&lt;&lt;-EOF
+        f(1)*x + f(2)*x^2 + f(3)*x^3 + f(4)*x^4 + f(5)*x^5 + f(6)*x^6 + f(7)*x^7
+        + f(8)*x^8 + f(9)*x^9 + f(10)*x^10;
+        EOF
+      )
+      assert result("e10") =~ /\s+f\(10\);/
+    end
+    end
+    #] SparseTable1 :
+</PRE>
+
+<P>
+Some remarks. Folds are used (to structure a long file). <TT>=begin</TT> and <TT>=end</TT>
+define a commentary block. Here useful information are given about the bug that
+triggered the test case. The input is not modified compared to the original
+FORM program, it is just directly pasted into this Ruby file. We use
+<TT>extra_parameter</TT> to define a preprocessor variable for the run. We check
+<TT>expr1</TT> to a multi-line reference. Since we use <TT>pattern()</TT> (instead of
+<TT>exact_pattern()</TT>), we can be sloppy about the indentation and the whitespaces.
+The expression <TT>e10</TT> is matched to a pattern done "by hand" instead (just to
+show the principle). For such a test case, where we are mostly interested about
+the correctness of the calculation, the first assertion (<TT>assert no_problem</TT>)
+is a standard.
+
+<P>
+
+<H1><A NAME="SECTION00070000000000000000">
+CVS</A>
+</H1>
+
+<P>
+The CVS repository resides in <TT>/user/form/cvs_repository</TT>. It is advisable to
+set the enviroment variable <TT>CVSROOT</TT> accordingly, like (using bash shell syntax)
+<PRE>
+  export CVSROOT=:ext:myusername@mytrustedmachine.nikhef.nl:/user/form/cvs_repository
+</PRE>
+
+<P>
+A mailing list exists for CVS commits. The administration interface for this mailing list can be
+found under the web address
+
+<P>
+<TT>https://mailman.nikhef.nl/cgi-bin/admin/form-cvs</TT>
+
+<P>
+A password is required. 
+
+<P>
+Click <I>Membership Management</I> and then <I>Mass Subscription</I> to add
+new people. The personal details of the subscribers like the email address or
+the name can be changed under <I>Membership Management</I> as well.
+
+<P>
+The triggering of the CVS commits mails is done in the following way. In the
+file <TT>loginfo</TT> in the directory <TT>CVSROOT</TT> (inside the repository) the
+default action for logging is set such that the script <TT>/user/form/cvs-log.sh</TT>
+will be called with the committer's user name and the CVS mailing list user
+name. The shell script does some simple message transformation and then uses the
+command <TT>mail</TT> to send the commit mail to the mailing list.
+
+<P>
+
+<H2><A NAME="SECTION00071000000000000000">
+Some useful CVS idioms</A>
+</H2>
+
+<P>
+To just show what would be updated/changed without actually
+modifiying anything, use
+<PRE>
+  cvs -n update
+</PRE>
+
+<P>
+If <TT>cvs -n update</TT> has shown you that something new in the repository will be
+merged into your directory and you want to know in advance what the details are,
+you can do for each of the files involved a
+<PRE>
+  cvs status &lt;filename&gt;
+</PRE>
+and note the version number of your local file, and then do a
+<PRE>
+  cvs diff -r &lt;versionnumber&gt; &lt;filename&gt;
+</PRE>
+to see the differences.
+
+<P>
+In case you want to compile an older version of FORM (maybe to find out
+whether a certain bug is already present or not), do
+<PRE>
+  cvs update -D "&lt;DATE&gt;"
+</PRE>
+to checkout the sources as they were on a certain date, e.g. 
+<BR><TT>cvs update -D "2006-05-12"</TT>. The files will get the so-called sticky flag,
+which do prevent simple <TT>cvs update</TT> commands in the future to update to the
+latest version from the repository. To remove the sticky flag on a file use
+<PRE>
+  cvs update -A &lt;filename&gt;
+</PRE>
+Without the filename all files will have the sticky flag removed.
+
+<P>
+<BR>
+
+<H2><A NAME="SECTION00080000000000000000">
+Index</A>
+</H2><DL COMPACT>
+<DD>
+</DL>
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot2886">...
+Ruby</A><A
+ HREF="#tex2html1"><SUP><SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD><TT>http://www.ruby-lang.org</TT>
+
+</DD>
+</DL>
+<BR><HR>
+
+</BODY>
+</HTML>
